@@ -77,6 +77,38 @@ public class HeroesServiceTest {
 			assertThat(item.getUniverse()).isEqualTo(expectedHero.getUniverse());
 			assertThat(item.getAppearance()).isEqualTo(expectedHero.getAppearances());
 		}).verifyComplete();
-		
 	}
+	@Test
+	void whenRegisteredIdIsInformedTheHeroShouldBeDeletedAndTrueReturned() {
+		//given
+		HeroDTO informedHeroDTO = HeroDTOBuilder.build();
+		Hero informedHero = HeroDTOBuilder.fromDTO(informedHeroDTO);
+		//when
+		when(heroesRepository.delete(informedHero)).thenReturn(Mono.empty());
+		when(heroesRepository.findById(informedHeroDTO.getId())).thenReturn(Mono.just(informedHero));
+		
+		StepVerifier.create(heroesService.delete(informedHeroDTO.getId()))
+			.consumeNextWith(item->{
+				assertThat(item).isTrue();
+			})
+			.expectComplete()
+			.verify();
+	}
+	@Test
+	void whenUnregisteredIdIsInformedThenFalseShouldBeReturned() {
+		//given
+		HeroDTO informedHeroDTO = HeroDTOBuilder.build();
+		Hero informedHero = HeroDTOBuilder.fromDTO(informedHeroDTO);
+		//when
+		when(heroesRepository.delete(informedHero)).thenReturn(Mono.empty());
+		when(heroesRepository.findById(informedHeroDTO.getId())).thenReturn(Mono.empty());
+		
+		StepVerifier.create(heroesService.delete(informedHeroDTO.getId()))
+			.consumeNextWith(item->{
+				assertThat(item).isFalse();
+			})
+			.expectComplete()
+			.verify();
+	}
+
 }

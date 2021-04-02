@@ -122,5 +122,36 @@ public class HeroesResourceTest {
 			assertThat(response.getErrors().get(0).getFieldName()).isEqualTo("appearance");
 		});
 	}
+	@Test
+	void whenRegisteredIdIsInformedAHeroShouldBeDeletedAndOkStatusReturned() {
+		//given
+		HeroDTO heroDTO = HeroDTOBuilder.build();
+		//when
+		when(heroesService.delete(heroDTO.getId())).thenReturn(Mono.just(true));
+		
+		webTestClient.delete()
+		.uri("/heroes/"+heroDTO.getId())
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody().isEmpty();
+		
+		
+	}
+	@Test
+	void whenUnregisteredIdIsInformedAHeroShouldBeDeletedAndNoContentStatusReturned() {
+		//given
+		HeroDTO heroDTO = HeroDTOBuilder.build();
+		//when
+		when(heroesService.delete(heroDTO.getId())).thenReturn(Mono.just(false));
+		
+		webTestClient.delete()
+		.uri("/heroes/"+heroDTO.getId())
+		.exchange()
+		.expectStatus().isNoContent()
+		.expectBody().isEmpty();
+		
+		
+	}
+	
 	
 }

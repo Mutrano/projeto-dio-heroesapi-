@@ -1,4 +1,4 @@
-package com.mutrano.heroesapi.services;
+package com.mutrano.heroesapi.services.exceptions;
 
 public class ResourceNotFoundException extends Exception{
 

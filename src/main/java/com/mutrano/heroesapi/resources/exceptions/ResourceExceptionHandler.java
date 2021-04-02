@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import com.mutrano.heroesapi.services.ResourceNotFoundException;
+import com.mutrano.heroesapi.services.exceptions.ResourceNotFoundException;
 
 import reactor.core.publisher.Mono;
 

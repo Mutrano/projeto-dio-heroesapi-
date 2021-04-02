@@ -1,21 +1,12 @@
 package com.mutrano.heroesapi.services;
 
 
-import javax.validation.Valid;
-
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import com.mutrano.heroesapi.domain.Hero;
 import com.mutrano.heroesapi.dto.HeroDTO;
 import com.mutrano.heroesapi.repositories.HeroesRepository;
-import com.mutrano.heroesapi.resources.exceptions.StandardError;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,6 +30,22 @@ public class HeroesService {
 				.flatMap(item->
 				Mono.just(new HeroDTO(item.getId(),item.getName(),item.getUniverse(),item.getAppearances())));
 	}
+	public Mono<Boolean> delete(String id){
+	/*	return heroesRepository.findById( id)
+				.flatMap(item -> heroesRepository.delete(item))
+				.flatMap(item-> Mono.just(true))
+				.defaultIfEmpty(Mono.just(false));*/
+		Mono<Hero> heroMono = heroesRepository.findById(id);
+		heroMono.flatMap(hero-> heroesRepository.delete(hero));
+		
+			return heroMono
+					.flatMap(item-> Mono.just(true))
+					.switchIfEmpty(Mono.just(false));
+					
+		
+
+	}
+	
 	public Flux<Hero> findAll(){
 		return heroesRepository.findAll();
 	}
