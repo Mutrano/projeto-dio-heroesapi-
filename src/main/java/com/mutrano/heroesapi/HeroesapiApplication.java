@@ -11,4 +11,5 @@ public class HeroesapiApplication {
 		SpringApplication.run(HeroesapiApplication.class, args);
 	}
 
+
 }
