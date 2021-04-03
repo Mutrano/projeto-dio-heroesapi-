@@ -1,5 +1,8 @@
 package com.mutrano.heroesapi.builders;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.mutrano.heroesapi.domain.Hero;
 import com.mutrano.heroesapi.dto.HeroDTO;
 

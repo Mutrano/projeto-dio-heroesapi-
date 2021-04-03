@@ -1,10 +1,10 @@
 package com.mutrano.heroesapi.resources;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +19,7 @@ import com.mutrano.heroesapi.dto.HeroDTO;
 import com.mutrano.heroesapi.services.HeroesService;
 import com.mutrano.heroesapi.services.exceptions.ResourceNotFoundException;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -48,9 +49,11 @@ public class HeroesResource {
 						? Mono.just(ResponseEntity.ok().build()) 
 						:Mono.just(ResponseEntity.noContent().build())  
 						);
-		
 	}
-
-
+	
+	@GetMapping()
+	public Flux<HeroDTO> findAll(){
+		return heroesService.findAll();
+	}
 
 }

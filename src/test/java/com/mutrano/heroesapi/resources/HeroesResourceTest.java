@@ -3,6 +3,9 @@ package com.mutrano.heroesapi.resources;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,13 +18,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.mutrano.heroesapi.builders.HeroDTOBuilder;
+import com.mutrano.heroesapi.domain.Hero;
 import com.mutrano.heroesapi.dto.HeroDTO;
 import com.mutrano.heroesapi.repositories.HeroesRepository;
 import com.mutrano.heroesapi.resources.exceptions.ResourceExceptionHandler;
 import com.mutrano.heroesapi.resources.exceptions.ValidationError;
 import com.mutrano.heroesapi.services.HeroesService;
 
-import net.bytebuddy.agent.VirtualMachine.ForHotSpot.Connection.Response;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
@@ -47,11 +51,14 @@ public class HeroesResourceTest {
 
 	@Test
 	void whenRegisteredNameIsInformedAHeroShouldBeReturned() {
+		//given
 		HeroDTO heroDTO = HeroDTOBuilder.build();
 		Mono<HeroDTO> heroMono = Mono.just(heroDTO);
-
+		
+		//when
 		when(heroesService.findByName("super morango")).thenReturn(heroMono);
-
+		
+		//then
 		webTestClient.get()
 			.uri("/heroes/" + heroDTO.getName())
 			.exchange()
@@ -109,7 +116,7 @@ public class HeroesResourceTest {
 		HeroDTO heroDTO = HeroDTOBuilder.build();
 		heroDTO.setAppearance(null);
 		Mono<HeroDTO> heroMono= Mono.just(heroDTO);
-		//when
+		//then
 		webTestClient.post()
 		.uri("/heroes/")
 		.bodyValue(heroDTO)
@@ -128,7 +135,7 @@ public class HeroesResourceTest {
 		HeroDTO heroDTO = HeroDTOBuilder.build();
 		//when
 		when(heroesService.delete(heroDTO.getId())).thenReturn(Mono.just(true));
-		
+		//then
 		webTestClient.delete()
 		.uri("/heroes/"+heroDTO.getId())
 		.exchange()
@@ -143,15 +150,28 @@ public class HeroesResourceTest {
 		HeroDTO heroDTO = HeroDTOBuilder.build();
 		//when
 		when(heroesService.delete(heroDTO.getId())).thenReturn(Mono.just(false));
-		
+		//then
 		webTestClient.delete()
 		.uri("/heroes/"+heroDTO.getId())
 		.exchange()
 		.expectStatus().isNoContent()
 		.expectBody().isEmpty();
-		
-		
 	}
 	
+	@Test
+	void whenFindAllEndpointIsCalledAHeroListShouldBeReturned() {
+		//given
+		HeroDTO expectedHeroDTO = HeroDTOBuilder.build();
+		Hero expectedHero = HeroDTOBuilder.fromDTO(expectedHeroDTO);
+		List<HeroDTO> expectedHeroDTOList = Collections.singletonList(expectedHeroDTO);
+		//when
+		when(heroesService.findAll()).thenReturn(Flux.fromIterable(expectedHeroDTOList));
+		//then
+		webTestClient.get()
+		.uri("/heroes/")
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody(List.class);
+	}
 	
 }

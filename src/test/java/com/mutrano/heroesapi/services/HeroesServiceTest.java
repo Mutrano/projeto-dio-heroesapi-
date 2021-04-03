@@ -3,6 +3,9 @@ package com.mutrano.heroesapi.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +16,7 @@ import com.mutrano.heroesapi.domain.Hero;
 import com.mutrano.heroesapi.dto.HeroDTO;
 import com.mutrano.heroesapi.repositories.HeroesRepository;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 @SpringBootTest
@@ -110,5 +114,20 @@ public class HeroesServiceTest {
 			.expectComplete()
 			.verify();
 	}
-
+	@Test
+	void whenFindAllIsCalledAListOfAllHeroesIsReturned() {
+		//given
+		HeroDTO expectedDto = HeroDTOBuilder.build();
+		Hero expectedHero = HeroDTOBuilder.fromDTO(expectedDto);
+		List<Hero> expectedHeroList = Collections.singletonList(expectedHero);
+		//when
+		when(heroesRepository.findAll()).thenReturn(Flux.fromIterable(expectedHeroList));
+		//then
+		
+		StepVerifier.create(heroesService.findAll())
+			.consumeNextWith(item -> {
+				assertThat(item.getName()).isEqualTo(expectedHero.getName());
+			} )
+			.verifyComplete();
+	}
 }

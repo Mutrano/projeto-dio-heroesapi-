@@ -20,8 +20,8 @@ public class HeroesService {
 	public Mono<HeroDTO> insert( HeroDTO hero){
 		return heroesRepository.save(new Hero(hero.getId(),hero.getName(),hero.getUniverse(),hero.getAppearance()   )   )
 				.flatMap(item->
-				Mono.just(new HeroDTO(item.getId(),item.getName(),item.getUniverse(),item.getAppearances())))
-				.flatMap(item -> findByName(item.getName()));
+					Mono.just(new HeroDTO(item.getId(),item.getName(),item.getUniverse(),item.getAppearances())))
+					.flatMap(item -> findByName(item.getName()));
 	}
 	
 
@@ -31,23 +31,21 @@ public class HeroesService {
 				Mono.just(new HeroDTO(item.getId(),item.getName(),item.getUniverse(),item.getAppearances())));
 	}
 	public Mono<Boolean> delete(String id){
-	/*	return heroesRepository.findById( id)
-				.flatMap(item -> heroesRepository.delete(item))
-				.flatMap(item-> Mono.just(true))
-				.defaultIfEmpty(Mono.just(false));*/
-		Mono<Hero> heroMono = heroesRepository.findById(id);
-		heroMono.flatMap(hero-> heroesRepository.delete(hero));
-		
-			return heroMono
-					.flatMap(item-> Mono.just(true))
-					.switchIfEmpty(Mono.just(false));
-					
-		
 
+		Mono<Hero> heroMono = heroesRepository.findById(id);
+		
+		heroMono
+			.flatMap(hero-> heroesRepository.deleteById(id))
+			.subscribe();
+		
+		return heroMono
+			.flatMap(item-> Mono.just(true))
+			.switchIfEmpty(Mono.just(false));
 	}
 	
-	public Flux<Hero> findAll(){
-		return heroesRepository.findAll();
+	public Flux<HeroDTO> findAll(){
+		return heroesRepository.findAll().
+				flatMap(item-> Mono.just(new HeroDTO(item.getId(),item.getName(),item.getUniverse(),item.getAppearances())) );
 	}
 
 }
