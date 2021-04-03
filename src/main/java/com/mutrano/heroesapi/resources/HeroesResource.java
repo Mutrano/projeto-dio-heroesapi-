@@ -35,21 +35,28 @@ public class HeroesResource {
 	public HeroesResource(HeroesService heroesService) {
 		this.heroesService = heroesService;
 	}
+	  private static final org.slf4j.Logger log =
+			    org.slf4j.LoggerFactory.getLogger(HeroesResource.class);
+
+	
 	@ApiResponses({@ApiResponse(responseCode = "200"),@ApiResponse(responseCode="404",content = @Content(schema = @Schema(implementation = StandardError.class)))})
 	@GetMapping("/{name}")
 	public Mono<ResponseEntity<HeroDTO>> findByName(@PathVariable String name, ServerHttpRequest request) {
+		log.info("Requesting the hero wich name is "+name);
 		return heroesService.findByName(name).flatMap((item) -> Mono.just(ResponseEntity.ok(item)))
 				.switchIfEmpty(Mono.error(new ResourceNotFoundException(name, request.getPath().toString())));
 	}
 	@ApiResponses({@ApiResponse(responseCode = "201"),@ApiResponse(responseCode="400",content=@Content(schema=@Schema(implementation = ValidationError.class)))})
 	@PostMapping
 	public Mono<ResponseEntity<HeroDTO>> insert(@RequestBody @Valid HeroDTO dto, ServerHttpRequest request) {
+		log.info("Creating a hero");
 		return heroesService.insert(dto).flatMap(
 				item -> Mono.just(ResponseEntity.created(URI.create(request.getPath() + item.getId())).body(item)));
 	}
 	@ApiResponses({@ApiResponse(responseCode = "200"),@ApiResponse(responseCode="204")})
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> deleteById(@PathVariable String id){
+		log.info("Deleting the hero with id "+id);
 		return heroesService.delete(id)
 				.flatMap(item->item
 						? Mono.just(ResponseEntity.ok().build()) 
@@ -59,6 +66,7 @@ public class HeroesResource {
 	
 	@GetMapping()
 	public Flux<HeroDTO> findAll(){
+		log.info("Requesting a List with all heroes");
 		return heroesService.findAll();
 	}
 
